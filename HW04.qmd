@@ -1,0 +1,290 @@
+---
+title: "HW04"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# Task 1:Conceptual Questions
+
+### 1. If your working directory is myfolder/homework/, what relative path would you specify to get the file located at myfolder/MyData.csv?
+
+For this we will navigate up one level from homework to myfolder and after that we will specify the file name. ../MyData.csv after that we can use the relative path my_data \<- read_csv("../MyData.csv")
+
+```{r}
+```
+
+### 2. What are the major benefits of using R projects?
+
+Ans:- R language is good for Machine learning and data analysis. It have many features and libraries for performing data wrangling. R offers a host of packages that help data anlysts turn unstructured, messy data into a structured format. The main reason for using R project is *Reproducibility*. If you are using Rstudio projects, and write code that you share with others and they will be able to run . It will make straightforward to divide your work into multiple contexts, each with their own working directory, workspace, history, and source documents.
+
+```{r}
+```
+
+### 3. What is git and what is github?
+
+Ans:- **GIT**:- Git is a version control system thst intelligently tracks changes in files. Git is particularly useful when you and a group of people are all making changes to the same files at the same time. Here are some featutes of using GIt.:
+
+**Version control**:- Git tracks changes to files over time, allowing you to revert to previous versions, compare changes, and collaborate with others.
+
+**Branching**: Developers can create separate branches to work on different features or bug fixes independently and then merge them back into the main codebase.
+
+**Distributed**: Every developer has a complete local copy of the repository, which allows for offline work and fast operations.
+
+**Github**:- GitHub is a cloud-based platform where you can store, share, and work together with others to write code. This is built on Git by adding more features like:-
+
+**Remote Repositories**: GitHub allows you to store your Git repositories in the cloud, making it easier to collaborate with others.
+
+**Collaboration Tools**: GitHub includes features like pull requests, issues, project boards, and wikis to help teams manage projects and track work.
+
+**Version Control in the Cloud**: Developers can push their local repositories to GitHub to share with others or back up their work.
+
+**Community and Open Source**: GitHub hosts millions of open-source projects and has a thriving community where developers contribute, fork, and collaborate on public projects.
+
+```{r}
+```
+
+### 4. What are the two main differences between a tibble and a data.frame?
+
+https://jtr13.github.io/cc21fall1/tibble-vs.-dataframe.html Ans: There are mainly 3 differences :-- *Printing*, *subsetting*, and *recycling* rules.
+
+1.  When you access only one column of a tibble, it will keep the tibble structure. But when you access one column of a data frame, it will become a vector.
+
+2.  When assigning a new column to a tibble, the input will not be recycled, which means you have to provide an input of the same length of the other columns. But a data frame will recycle the input.
+
+3.  Reading with builtin read.csv() function will output data frames, while reading with read_csv() in “readr” package inside tidyverse will output tibbles.
+
+4.  Tibbles cannot access a column when you provide a partial name of the column, but data frames can.
+
+5.  Tibbles don’t support support arithmetic operations on all columns well, the result will be converted into a data frame without any notice.
+
+6.  Tibbles preserve all the variable types, while data frames have the option to convert string into factor.
+
+### 5. Rewrite the following nested function call using BaseR’s chaining operator:
+
+arrange(filter(select(as_tibble(iris), starts_with("Petal"), Species), Petal.Length \< 1.55), Species)
+
+iris \|\> as_tibble() \|\> select(starts_with("Petal"), Species) \|\> filter(Petal.Length \< 1.55) \|\> arrange(Species)
+
+```{r}
+```
+
+# Task 2 Reading Delimited Data
+
+### Read the Glass data
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# Get the data 
+glass_data <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/glass.data",
+                       col_names = c("Id", "RI","Na","Mg","Al","Si","K","Ca","Ba","Fe","Glass_Type"))
+
+head(glass_data)
+```
+
+```{r}
+#recode(): This function from dplyr is used to map each numeric value in the Type column to a descriptive string.
+```
+
+```{r}
+# Give the appropriate name to every Glass Type
+glass_data <- glass_data %>%
+  mutate(Glass_type_name =  recode(Glass_Type,
+                                   '1' = "Building_windows_float_processed",                                    
+                                   '2' = "Build-ing_windows_non_float_processed",
+                                   '3' = "Vehicle_windows_float_processed",
+                                   '4' = "Vehicle_windows_non_float_processed",
+                                   '5' = "Containers",
+                                   '6' = "Tableware",
+                                   '7' = "Headlamps"
+                                   )
+  ) %>%
+  filter(Fe <0.2, Glass_type_name %in% c("Tableware","Headlamps"))
+
+glass_data
+
+```
+
+### Yeast data
+
+```{r}
+#yeast_data <- read_delim("https://www4.stat.ncsu.edu/~online/datasets/yeast.data",
+#                         delim = " ",
+#                         col_names = c("seq_name", "mcg","gvh","alm","mit"," erl","pox","vac","nuc","class")
+ #                        )
+#
+#head(yeast_data)
+```
+
+```{r}
+
+
+#ADT1_YEAST  0.58  0.61  0.47  0.13  0.50  0.00  0.48  0.22  MIT
+```
+
+```{r}
+#yeast_data1 <- read_fwf("https://www4.stat.ncsu.edu/~online/datasets/yeast.data",
+#                        fwf_widths(12,6,6,6,6,6,6,6,6,3),
+ #                       trim_ws = TRUE
+#)
+
+#colnames(yeast_data1) <- c("seq_name", "mcg","gvh","alm","mit"," erl","pox","vac","nuc","class")
+#head(yeast_data1)
+```
+
+```{r}
+
+# Read the YeAST data into a tibble
+yeast_data <- read_table("https://www4.stat.ncsu.edu/~online/datasets/yeast.data",
+                         col_names = c("seq_name", "mcg", "gvh", "alm", "mit", "erl", "pox", "vac", "nuc", "class")
+                         )
+
+head(yeast_data)
+```
+
+```{r}
+# Start a chain that removes the seq_name and nuc columns.
+# Continue your chain to add columns corresponding to the mean and median of each numeric variable (mcg, gvh, alm, mit, erl, pox, and vac) at each class grouping 
+Filter_yeast_data1 <- yeast_data |>
+  select(-c("seq_name","nuc")) |>
+  mutate(across(where(is.numeric), list(mean = mean, sd = sd), .names = "{.col}_{.fn}")
+         )
+
+head(Filter_yeast_data1)
+
+```
+
+# Task 3: Combining Excel and Delimited Data
+
+### There are two data sets that are ‘related to red and white variants of the Portuguese “Vinho Verde” wine.’ There are physicochemical variables and a quality score, as rated by experts.
+
+### 1. Import the data from the first sheet using the readxl package
+
+```{r}
+library(readxl)
+
+white_wine <- read_excel("/Users/artigupta/NCSU_R/Assignment/Homework3/Homework4/white-wine.xlsx", sheet = 1)
+head(white_wine)
+
+
+```
+
+### 2. Read in the data from the 2nd sheet. This should return a data frame with one column containing alternative versions of the variable names.
+
+```{r}
+feature_name <- read_excel("/Users/artigupta/NCSU_R/Assignment/Homework3/Homework4/white-wine.xlsx", sheet = 2, col_names = FALSE )
+feature_name
+#structure of the data frame
+str(feature_name)
+
+head(feature_name)
+```
+
+### Grab that column and overwrite the current column names (colnames()) of your white wine tibble
+
+```{r}
+
+#print(feature_name[2:13, 1])
+```
+
+```{r}
+
+#new_col <- feature_name[[1]]
+#length(new_col)
+# Take the feature name from row 2 to 13 from column 1. 
+feature_new <- pull(feature_name[2:13, 1])
+colnames(white_wine) <- feature_new
+#new_col <- feature_name[2:13, 1]
+#length(new_col)
+#new_col <- as.character(new_col)
+#new_col
+#new_col <- trimws(new_col)
+#cat(sprint('"%s"\n, featrue))
+#colnames(white_wine)
+#length(new_col)
+#ncol(new_col)
+#str(new_col)
+#colnames(white_wine) <- new_col
+head(white_wine)
+```
+
+### 3. Add a column to this data set to indicate the wines are white.
+
+```{r}
+# add one column in the data set and give the value to all the rows to white
+white_wine["Wine_Type"] <- "White"
+
+#view(white_wine)
+head(white_wine)
+```
+
+### 4. Read a dataset for red wine
+
+```{r}
+library(readr)
+red_wine <- read_delim("https://www4.stat.ncsu.edu/~online/datasets/red-wine.csv", delim = ";", col_names = TRUE)
+head(red_wine)
+
+```
+
+```{r}
+colnames(red_wine) <- feature_new
+#view(red_wine)
+# convert all the data type character to numeric
+red_wine <- red_wine |>
+  mutate(across(everything(), as.numeric))
+head(red_wine)
+```
+
+# Add the column for the wine Type
+
+```{r}
+red_wine["Wine_Type"] <- "Red"
+#view(red_wine)
+head(red_wine)
+```
+
+### 5. Combine these two data sets into one data set
+
+```{r}
+wine_data <- dplyr::bind_rows(white_wine, red_wine)
+head(wine_data)
+```
+
+```{r}
+#view(red_wine)
+#view(white_wine)
+```
+
+### 6. filter the data to only look at high-quality wines (quality \> 6.5) and wines that have a reasonable alcohol value (alcohol \< 132)
+
+### 7. sort the data from highest quality to lowest
+
+### 8. select only the variables that contain acid, the alcohol variable, the type variable, and the quality variable.
+
+```{r}
+filter_data <- wine_data |>
+  filter(quality > 6.5 & alcohol < 132) |>
+  arrange(desc(quality)) |>
+  select(contains("acid"), alcohol, Wine_Type, quality)
+view(filter_data)
+```
+
+### 9. add the mean and standard deviation of the alcohol variable to the data set for each setting of the quality variable.
+
+```{r}
+mean_sd_wine_data <- wine_data |>
+  group_by(quality) |>
+  select(alcohol) |>
+  mutate(alcohol_mean = mean(alcohol, na.rm = TRUE),
+         alcohol_sd = sd(alcohol, na.rm = TRUE))
+```
+
+```{r}
+head(mean_sd_wine_data)
+view(mean_sd_wine_data)
+```
